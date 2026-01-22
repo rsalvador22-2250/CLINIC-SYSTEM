@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinic Admin Login</title>
+<link rel="icon" type="image/png" href="school logo.jpg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+/* Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #b2f2bb, #d3f9d8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.card {
+  width: 100%;
+  max-width: 360px;
+  background: white;
+  padding: 35px 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  position: relative;
+}
+
+.card img.logo {
+  width: 90px;
+  height: 90px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+h2 {
+  color: #2e7d32;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #a5d6a7;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46,125,50,0.2);
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  background: #27632b;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.show-pass-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.show-pass {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#error {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+  min-height: 20px;
+  text-align: center;
+}
+
+/* MOBILE OPTIMIZATION */
+@media(max-width:480px){
+  .card { padding: 25px 20px; }
+  h2 { font-size: 20px; }
+  input, button { font-size: 14px; padding: 10px 12px; }
+  .card img.logo { width: 80px; height: 80px; margin-bottom: 15px; }
+  .show-pass { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <img src="school logo.jpg" alt="Clinic Logo" class="logo">
+  <h2>Clinic Admin Login</h2>
+
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+
+  <div class="show-pass-wrapper">
+    <label class="show-pass">
+      <input type="checkbox" id="togglePass"> Show Password
+    </label>
+  </div>
+
+  <button id="loginBtn">Login</button>
+  <div id="error"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBhft3v9j2ooODFwL1GiBs97PvCCFuDo6U",
+    authDomain: "clinicsystem-66175.firebaseapp.com",
+    projectId: "clinicsystem-66175",
+    storageBucket: "clinicsystem-66175.appspot.com",
+    messagingSenderId: "572979094042",
+    appId: "1:572979094042:web:2026805fab9c63930ae7a3"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// DOM Elements
+const loginBtn = document.getElementById('loginBtn');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const errorDiv = document.getElementById('error');
+const togglePass = document.getElementById('togglePass');
+
+// Show/Hide Password
+togglePass.addEventListener('change', () => {
+  passwordInput.type = togglePass.checked ? 'text' : 'password';
+});
+
+// Login Button
+loginBtn.addEventListener('click', async () => {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    errorDiv.textContent = "❌ Please enter email and password!";
+    return;
+  }
+
+  loginBtn.disabled = true;
+  errorDiv.textContent = "Logging in...";
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.href = "record.html";
+  } catch (err) {
+    console.error(err);
+    errorDiv.textContent = "❌ Invalid credentials!";
+  } finally {
+    loginBtn.disabled = false;
+  }
+});
+
+// Redirect already logged-in users
+onAuthStateChanged(auth, user => {
+  if (user) {
+    window.location.href = "record.html";
+  }
+});
+</script>
+
+</body>
+</html>

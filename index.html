@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SASO - Student Record</title>
+<link rel="icon" type="image/png" href="school logo.jpg">
+
+<style>
+/* Base styles */
+body { font-family: "Segoe UI", Arial, sans-serif; background: linear-gradient(135deg, #b2f2bb, #d4edda); margin: 0; padding: 0; }
+header { background-color: #155724; color: white; text-align: center; padding: 20px 0; font-size: 24px; font-weight: bold; letter-spacing: 1px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); position: relative; }
+header::after { content: ""; display: block; height: 6px; width: 100%; background: linear-gradient(to right, #00c853, #a5d6a7, #00c853); position: absolute; bottom: 0; left: 0; }
+.container { display: flex; justify-content: center; align-items: flex-start; gap: 40px; padding: 40px; flex-wrap: wrap; }
+.form-card { background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); padding: 40px 50px; width: 850px; border-left: 8px solid #218838; position: relative; }
+.form-card:hover { transform: scale(1.01); transition: 0.2s; }
+h1 { text-align: center; color: #155724; margin-bottom: 25px; border-bottom: 2px solid #218838; padding-bottom: 10px; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 40px; }
+label { font-weight: bold; color: #155724; display: block; margin-bottom: 5px; font-size: 15px; }
+input, textarea { width: 100%; padding: 10px 12px; border: 1px solid #9ccc65; border-radius: 6px; font-size: 14px; background-color: #f9fff9; color: #155724; }
+input:focus, textarea:focus { outline: none; border-color: #218838; background-color: #ffffff; box-shadow: 0 0 5px #74c69d; }
+textarea { resize: vertical; height: 70px; }
+.optional { font-size: 12px; color: gray; font-style: italic; }
+.buttons { grid-column: span 2; display: flex; justify-content: center; gap: 25px; margin-top: 25px; flex-wrap: wrap; }
+.save-btn, .view-btn { background-color: #28a745; color: white; border: none; padding: 12px 28px; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; transition: all 0.2s ease; }
+.save-btn:hover, .view-btn:hover { background-color: #218838; transform: scale(1.05); }
+.right img { width: 250px; height: auto; margin-top: 100px; border-radius: 12px; border: 3px solid #218838; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.error { text-align: center; color: red; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
+
+/* ======================= MOBILE RESPONSIVE ======================= */
+@media (max-width: 600px) {
+    .container { flex-direction: column; align-items: center; padding: 15px; gap: 20px; }
+    .form-card { width: 100%; padding: 25px 20px; border-left: none; border-top: 6px solid #218838; }
+    form { grid-template-columns: 1fr; gap: 15px 0; }
+    label { font-size: 14px; }
+    input, textarea { font-size: 14px; padding: 10px; }
+    .buttons { flex-direction: column; gap: 12px; }
+    .save-btn, .view-btn { width: 100%; padding: 14px 0; font-size: 16px; }
+    .right img { width: 150px; margin-top: 20px; }
+    h1 { font-size: 20px; }
+    header { font-size: 20px; padding: 15px 0; }
+}
+</style>
+
+</head>
+<body>
+
+<header>SCHOOL CLINIC CONSULTATION FORM</header>
+
+<div class="container">
+    <div class="form-card">
+        <h1>ASSESSMENT SHEET</h1>
+
+        <p id="msg" style="text-align:center; font-weight:bold; margin-bottom:10px;"></p>
+
+        <form id="clinicForm">
+            <div>
+                <label>NAME:</label>
+                <input type="text" name="name" placeholder="Enter Name" required> 
+                <label>STUDENT NUMBER:</label>
+                <input type="text" name="student_number" placeholder="Enter Student Number" required>
+                <label>SECTION/OFFICE:</label>
+                <input type="text" name="section" placeholder="Enter Section or Office" required>
+                <label>DATE:</label>
+                <input type="date" name="date" required> 
+                <label>TIME IN:</label>
+                <input type="time" name="time_in" required>
+                <label>TIME OUT: <span class="optional">(Optional)</span></label>
+                <input type="time" name="time_out">
+            </div>
+
+            <div>
+                <label>CHIEF COMPLAINTS:</label>
+                <textarea name="complaints" placeholder="Enter Chief Complaints" required></textarea>
+                <label>ASSESSMENT:</label>
+                <textarea name="assessment" placeholder="Enter Assessment" required></textarea>
+                <label>MEDICINE:</label>
+                <textarea name="medicine" placeholder="Enter Medicine Given" required></textarea>
+                <label>INTERVENTION:</label>
+                <textarea name="intervention" placeholder="Enter Intervention" required></textarea>
+                <label>CLINIC PERSONNEL:</label>
+                <input type="text" name="personnel" placeholder="Enter Clinic Personnel Name" required>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="save-btn">💾 Save Record</button>
+                <button type="button" class="view-btn" onclick="window.location.href='login.html'">📋 View Records</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="right">
+        <img src="school logo.jpg" alt="School Logo">
+    </div>
+</div>  
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getFirestore, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+// 🔹 Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyBhft3v9j2ooODFwL1GiBs97PvCCFuDo6U",
+    authDomain: "clinicsystem-66175.firebaseapp.com",
+    projectId: "clinicsystem-66175",
+    storageBucket: "clinicsystem-66175.appspot.com",
+    messagingSenderId: "572979094042",
+    appId: "1:572979094042:web:2026805fab9c63930ae7a3"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById("clinicForm");
+const msgEl = document.getElementById("msg");
+
+// Autofill form from URL params
+const params = new URLSearchParams(window.location.search);
+["name","student_number","section","date","time_in","time_out","complaints","assessment","medicine","intervention","personnel"].forEach(field => {
+    const input = form[field];
+    if(input && params.get(field)) input.value = decodeURIComponent(params.get(field));
+});
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = {
+        name: form.name.value,
+        student_number: form.student_number.value,
+        section: form.section.value,
+        date: form.date.value,
+        time_in: form.time_in.value,
+        time_out: form.time_out.value || null,
+        complaints: form.complaints.value,
+        assessment: form.assessment.value,
+        medicine: form.medicine.value,
+        intervention: form.intervention.value,
+        personnel: form.personnel.value,
+        timestamp: Timestamp.now()
+    };
+
+    try {
+        await addDoc(collection(db, "clinicform"), data);
+        msgEl.style.color = "green";
+        msgEl.textContent = "✅ Record saved successfully!";
+        form.reset();
+    } catch (error) {
+        console.error(error);
+        msgEl.style.color = "red";
+        msgEl.textContent = "❌ Failed to save record.";
+    }
+});
+</script>
+
+</body>
+</html>
